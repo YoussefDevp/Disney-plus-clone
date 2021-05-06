@@ -1,14 +1,41 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
+import { useParams } from "react-router-dom"
+import db from "../firebase"
+import Movies from './Movies'
+
 
 function Detail() {
+    const { id } = useParams();
+    const [ movie, setMovies ] = useState()
+
+
+useEffect(() => {
+   // Grab the movie info from DB
+   db.collection("movies")
+   .doc(id)
+   .get()
+   .then((doc)=> {
+       if(doc.exists) {
+           //save the movie data
+           setMovies(doc.data());
+       } else {
+
+       }
+   })
+}, [])
+
+console.log("Movie is",movie);
+
     return (
         <Container>
-            <Background>
-                <img src="https://cadenaser00.epimg.net/ser/imagenes/2019/09/19/el_cine_en_la_ser/1568875759_144492_1568878699_noticia_normal.jpg" />
+            {movie && (
+                <>
+                    <Background>
+                <img src={ movie.backgroundImg } />
             </Background>
             <ImgTitle>
-                <img src="https://i.pinimg.com/originals/e6/df/e9/e6dfe9a466e338d67e88629e0566f0a5.png" />
+                <img src={movie.titleImg}/>
             </ImgTitle> 
 
             <Controls>
@@ -28,11 +55,14 @@ function Detail() {
                 </GroupWatchButton> 
             </Controls>
             <SubTitle>
-                2018 * 7m * Family, Fanstasy, Kids, Animation
+               {movie.subTitle}
             </SubTitle>
             <Description>
-            Toy Story 4 sees the return of Woody, Buzz and the whole gang, far from home, discovering new friends—and old ones—on an eye-opening road trip that takes them to unexpected places.
+            {movie.description}
             </Description>
+            </>
+            )}
+            
         </Container>
     )
 }
