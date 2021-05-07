@@ -1,12 +1,25 @@
 import React from 'react'
 import styled from 'styled-components';
+import { findRenderedComponentWithType } from 'react-dom/test-utils'
+import {
+    selectUserEmail,
+    selectUserName,
+    selectUserPhoto,
+} from "../features/user/userSlice"
+import { useSelector } from "react-redux"
 
 function Header() {
+    const userName = useSelector(selectUserName);
+    const userPhoto = useSelector(selectUserPhoto);
     return (
         <Nav>
             <Logo src="/images/logo.svg" />
-
-            <NavMenu>
+            { !userName ? (
+                <LoginContainer>
+                    <Login>Login</Login>
+                    </LoginContainer> ):
+                <>
+                <NavMenu>
             <a>
                 <img src="/images/home-icon.svg" />
                 <span>HOME</span>
@@ -34,6 +47,9 @@ function Header() {
             </NavMenu>
 
             <UserImg src="/images/profile.jpg" />
+                </>
+
+            }
             
         </Nav>
     )
@@ -103,4 +119,27 @@ const UserImg = styled.img`
     width: 48px;
     border-radius: 50%;
     cursor: pointer; 
+`
+
+const Login = styled.div`
+    border: 1px solid #f9f9f9;
+    padding: 8px 16px;
+    border-radius: 4px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background-color: rgba(0, 0, 0, 0.6);
+    transition: all 0.2s ease 0s;
+    cursor: pointer;
+    
+    &:hover {
+        background-color: #f9f9f9;
+        color: #000;
+        border-color: transparent;
+    }
+`
+
+const LoginContainer = styled.div`
+    flex: 1;
+    display: flex;
+    justify-content: flex-end
 `
