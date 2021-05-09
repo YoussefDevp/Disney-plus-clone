@@ -1,22 +1,60 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components';
-import { findRenderedComponentWithType } from 'react-dom/test-utils'
+import { auth, provider } from "../firebase";
+import { useHistory } from "react-router-dom"
 import {
-    selectUserEmail,
     selectUserName,
     selectUserPhoto,
+    setUserLogin,
+    setSignOut
 } from "../features/user/userSlice"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 
 function Header() {
     const userName = useSelector(selectUserName);
     const userPhoto = useSelector(selectUserPhoto);
+    const dispatch = useDispatch();
+    const history = useHistory();
+
+    useEffect(() =>{
+        auth.onAuthStateChanged(async (user)=>{
+            if(user){
+                dispatch(setUserLogin({
+                    name: user.displayName,
+                    email: user.email,
+                    photo: user.photoURL
+                }))
+                history.push("/")
+            }
+        })
+    },[])
+
+    const signIn = () => {
+        auth.signInWithPopup(provider)
+        .then((result) => {
+            let user = result.user
+            dispatch(setUserLogin({
+                name: user.displayName,
+                email: user.email,
+                photo: user.photoURL
+            }))
+            history.push("/")
+        })
+    }
+
+    const signOut = () => {
+        auth.signOut()
+        .then(() => {
+            dispatch(setSignOut());
+            history.push("/login")
+        })
+    }
     return (
         <Nav>
             <Logo src="/images/logo.svg" />
             { !userName ? (
                 <LoginContainer>
-                    <Login>Login</Login>
+                    <Login onClick={signIn}>Login</Login>
                     </LoginContainer> ):
                 <>
                 <NavMenu>
@@ -46,7 +84,7 @@ function Header() {
             </a>
             </NavMenu>
 
-            <UserImg src="/images/profile.jpg" />
+            <UserImg onClick={signOut} src={userPhoto} />
                 </>
 
             }
